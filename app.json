@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "عدادي الأول",
+    "slug": "nex",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "fb092d5c-b4fa-4a37-b4be-62a421a22c2f"
+      }
+    },
+    "android": {
+      "package": "com.hamd12.nexapp"
+    }
+  }
+}
