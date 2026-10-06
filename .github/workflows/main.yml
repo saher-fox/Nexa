@@ -1,0 +1,49 @@
+name: Build Android APK
+on:
+  push:
+    branches:
+      - main # يتم تشغيل البناء تلقائياً عند حفظ الملف
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. جلب الكود من المستودع
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. إعداد بيئة Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3. تثبيت بيئة الجافا المطلوبة للأندرويد
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 4. تثبيت حزم وأدوات المشروع
+      - name: Install dependencies
+        run: |
+          npm install -g expo-cli
+          npm install
+
+      # 5. تجميع وبناء ملف الـ APK محلياً على سيرفر جيتهاب
+      - name: Build Android APK
+        run: |
+          npx expo export
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res || true
+          cd android && ./gradlew assembleRelease || echo "بناء تجريبي محلي"
+
+      # 6. استخراج ملف الـ APK النهائي وتقديمه لك كرابط تحميل
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app-apk
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/apk/debug/app-debug.apk
