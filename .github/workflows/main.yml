@@ -1,52 +1,48 @@
-herename: Build Android APK
+name: Build Android APK
 on:
   push:
     branches:
       - main
-  workflow_dispatch: # يتيح لك تشغيل البناء يدوياً بزر ضغط
+  workflow_dispatch:
 
 jobs:
   android-build:
     runs-on: ubuntu-latest
     steps:
-      # 1. جلب الكود من المستودع
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. إعداد بيئة Node.js
+      # إجبار السيرفر على استخدام إصدار حديث جداً لحل مشكلة الدالة المفقودة
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
+          node-version: 22
 
-      # 3. تثبيت بيئة الجافا المطلوبة للأندرويد
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 4. تثبيت حزم وأدوات المشروع الأساسية
       - name: Install dependencies
         run: |
           npm install
 
-      # 5. الخطوة السحرية: توليد مجلد أندرويد الأصلي تلقائياً سحابياً
-      - name: Prebuild Expo Project (Generate Native Android Folder)
+      # توليد ملفات الأندرويد المفقودة تلقائياً سحابياً
+      - name: Prebuild Expo Project
         run: |
           npx expo prebuild --platform android --no-install
 
-      # 6. تجميع وبناء ملف الـ APK محلياً داخل السيرفر
+      # بدء البناء والتجميع الفعلي لملف الـ APK
       - name: Build Android APK via Gradle
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      # 7. استخراج ملف الـ APK النهائي وتقديمه لك كرابط تحميل مباشر
+      # استخراج ملف الـ APK وتقديمه لك كرابط تحميل مباشر
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-counter-app-apk
+          name: nexa-counter-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
